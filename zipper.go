@@ -3,22 +3,23 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Zipper struct {
 	Nodes         []Node
-	FreqDic       map[string]int
-	EncriptionMap map[string]string
+	FreqDic       map[rune]int
+	EncriptionMap map[rune]string
 }
 
 func (z *Zipper) FindFreq(text string) {
-	z.FreqDic = make(map[string]int)
+	z.FreqDic = make(map[rune]int)
 	for _, c := range text {
-		_, ok := z.FreqDic[string(c)]
+		_, ok := z.FreqDic[c]
 		if !ok {
-			z.FreqDic[string(c)] = 1
+			z.FreqDic[c] = 1
 		} else {
-			z.FreqDic[string(c)] += 1
+			z.FreqDic[c] += 1
 		}
 	}
 }
@@ -59,7 +60,7 @@ func (z *Zipper) FindEncoding(text string) {
 	z.FindFreq(text)
 	z.CreateNodes()
 	z.CreateTree()
-	z.EncriptionMap = make(map[string]string)
+	z.EncriptionMap = make(map[rune]string)
 	z.Nodes[0].Encode("", z.EncriptionMap)
 }
 
@@ -72,10 +73,12 @@ func (z *Zipper) Zip(fileName string) {
 
 	z.FindEncoding(string(text))
 
-	var encryptedText string
+	var encryptedText []byte
 
+	var block byte
+	var size int = 0
 	for _, c := range text {
-		encryptedText += z.EncriptionMap[string(c)]
+		encryptedText += z.EncriptionMap[rune(c)]
 	}
 
 	err = os.WriteFile("zipped-"+fileName, []byte(encryptedText), 0644)
@@ -95,23 +98,25 @@ func (z *Zipper) Unzip(fileName string) {
 
 func (z *Zipper) DeCode(text string) {
 	var unit string
-	var decryptedText string
+
+	var sb strings.Builder
+
 	for _, c := range text {
 		unit += string(c)
 		if key, ok := mapkey(z.EncriptionMap, unit); ok {
-			decryptedText += key
+			sb.WriteRune(key)
 			unit = ""
 		} else {
 			continue
 		}
 	}
-	err := os.WriteFile("original.txt", []byte(decryptedText), 0644)
+	err := os.WriteFile("original.txt", []byte(sb.String()), 0644)
 	if err != nil {
 		fmt.Print(err)
 	}
 }
 
-func mapkey(m map[string]string, value string) (key string, ok bool) {
+func mapkey(m map[rune]string, value string) (key rune, ok bool) {
 	for k, v := range m {
 		if v == value {
 			key = k

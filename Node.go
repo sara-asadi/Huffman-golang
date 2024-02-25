@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type Node struct {
-	val         string
+	val         rune
 	freq        int
 	left, right *Node
 }
@@ -20,7 +20,7 @@ func Add(left, right *Node) *Node {
 	return &newNode
 }
 
-func NewNode(val string, freq int) *Node {
+func NewNode(val rune, freq int) *Node {
 	var node = Node{val, freq, nil, nil}
 	return &node
 }
@@ -37,7 +37,7 @@ func (n *Node) Print() {
 	}
 }
 
-func (n *Node) Encode(code string, encodingMap map[string]string) {
+func (n *Node) Encode(code string, encodingMap map[rune]string) {
 
 	if n.left == nil && n.right == nil {
 		encodingMap[n.val] = code
