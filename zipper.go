@@ -13,7 +13,7 @@ type Zipper struct {
 	EncriptionMap map[rune][]byte
 }
 
-func convert(byteArray []byte) []byte {
+func concatBytes(byteArray []byte) []byte {
 	var concatedBytes []byte
 	var unit byte = 0
 
@@ -45,9 +45,11 @@ func (z *Zipper) Zip(fileName string) {
 	for _, c := range string(text) {
 		byteArray = append(byteArray, z.EncriptionMap[c]...)
 	}
-	zippedByteArray := convert(byteArray)
+
+	zippedByteArray := concatBytes(byteArray)
 
 	err = os.WriteFile("zipped-"+fileName, zippedByteArray, 0600)
+
 	if err != nil {
 		fmt.Print(err)
 	}
